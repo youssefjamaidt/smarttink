@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACHBAL NATATION SPORTIF - Gestion des Présences</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .presence-cell {
+            text-align: center;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        
+        .presence-display {
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .presence-display.present {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .presence-display.absent {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .presence-display.excused {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .presence-display:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 8px;
+        }
+        
+        .date-selector label {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .date-selector input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .swimmer-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .swimmer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .swimmer-item:last-child {
+            border-bottom: none;
+        }
+        
+        .swimmer-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            color: var(--dark);
+            border-top: 1px solid #ddd;
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .group-title {
+            font-size: 1.3rem;
+            color: var(--secondary);
+        }
+        
+        .group-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .save-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            .presence-display {
+                border: 1px solid #ddd;
+                padding: 3px 8px;
+            }
+            
+            .save-section {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                width: 100%;
+                text-align: center;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            .group-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .group-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ACHBAL NATATION SPORTIF - Gestion des Présences</h1>
+            <p>Système de suivi des présences pour les groupes de natation</p>
+        </header>
+        
+        <div class="card no-print">
+            <div class="card-header">
+                <h2 class="card-title">Sélection du Groupe</h2>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="addGroupBtn">Ajouter un Groupe</button>
+                    <button class="btn btn-secondary" id="printBtn">Imprimer</button>
+                </div>
+            </div>
+            
+            <div class="tabs" id="groupTabs">
+                <!-- Les onglets seront générés dynamiquement -->
+            </div>
+            
+            <div class="date-selector">
+                <label for="currentDate">Date de présence :</label>
+                <input type="date" id="currentDate">
+                <button class="btn btn-primary" id="applyDateBtn">Appliquer</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Rechercher un nageur...">
+                <button class="btn btn-secondary" id="clearSearch">Effacer</button>
+            </div>
+        </div>
+        
+        <!-- Conteneur pour les groupes -->
+        <div id="groupsContainer">
+            <!-- Les groupes seront générés dynamiquement -->
+        </div>
+        
+        <footer>
+            <p>Système de gestion des présences - ACHBAL NATATION SPORTIF &copy; 2025</p>
+        </footer>
+    </div>
+
+    <!-- Modal pour ajouter un groupe -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalGroupTitle">Ajouter un nouveau groupe</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="groupForm">
+                <div class="form-group">
+                    <label for="groupName">Nom du groupe</label>
+                    <input type="text" id="groupName" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="groupResponsable">Responsable</label>
+                    <input type="text" id="groupResponsable" required>
+                </div>
+                <div class="form-group">
+                    <label for="groupSchedule">Horaires</label>
+                    <input type="text" id="groupSchedule" placeholder="Ex: Lundi, Mercredi et Jeudi de 19h à 20h">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Description</label>
+                    <textarea id="groupDescription" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelGroupBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer le groupe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter/modifier un nageur -->
+    <div class="modal" id="swimmerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalSwimmerTitle">Ajouter un nageur</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="swimmerForm">
+                <div class="form-group">
+                    <label for="nomFamille">Nom de famille</label>
+                    <input type="text" id="nomFamille" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="naissance">Date de naissance</label>
+                    <input type="date" id="naissance">
+                </div>
+                <div class="form-group">
+                    <label for="groupe">Groupe</label>
+                    <select id="groupe">
+                        <!-- Les options seront générées dynamiquement -->
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelSwimmerBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour gérer les nageurs d'un groupe -->
+    <div class="modal" id="manageSwimmersModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalManageTitle">Gérer les nageurs du groupe</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" id="addSwimmerToGroupBtn">Ajouter un nageur</button>
+            </div>
+            <div class="swimmer-list" id="swimmerList">
+                <!-- Liste des nageurs sera générée dynamiquement -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="closeManageBtn">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données initiales extraites du PDF
+        const groupesData = {
+            ecole1: {
+                nom: "École Natation Groupe 1",
+                responsable: "MR AYOUB SABER",
+                horaires: "Lundi, Mercredi et Jeudi",
+                nageurs: [
+                    { nom: "AC HBII", prenom: "JAPANAT", naissance: "2001-01-17" },
+                    { nom: "BAGASS", prenom: "ZIAO", naissance: "2005-11-02" },
+                    { nom: "BENSOUDA", prenom: "MARYAM", naissance: "2020-08-03" },
+                    { nom: "KAROVCH", prenom: "SOULAYMARE", naissance: "2019-05-09" },
+                    { nom: "SOBOUB", prenom: "YAHYA", naissance: "2020-07-08" },
+                    { nom: "TALIB", prenom: "SAFOUANE", naissance: "2019-01-23" },
+                    { nom: "FIZAZI", prenom: "YAHYA", naissance: "" },
+                    { nom: "TALEB", prenom: "MOHJAMED", naissance: "" },
+                    { nom: "EL MAHBOUBI", prenom: "FARID", naissance: "" },
+                    { nom: "EL MAHBOUBI", prenom: "YASSINE", naissance: "" },
+                    { nom: "MOUSSAID", prenom: "YASSER", naissance: "" },
+                    { nom: "ELHATTAB", prenom: "REDOUJANE", naissance: "" },
+                    { nom: "MONNUSS", prenom: "YAAROUB", naissance: "" }
+                ]
+            },
+            competition: {
+                nom: "Compétition",
+                responsable: "MR RACHID",
+                horaires: "Lundi à Vendredi à partir de 19h30",
+                nageurs: [
+                    { nom: "BENAYADE", prenom: "TAMIM", naissance: "2012-08-07" },
+                    { nom: "BENCHABRI", prenom: "CHAUD", naissance: "2010-05-20" },
+                    { nom: "CHORFI", prenom: "HIJA", naissance: "2012-08-13" },
+                    { nom: "EL ARFO", prenom: "RAMA", naissance: "2005-06-30" },
+                    { nom: "EL HJAMI", prenom: "ROMAISSA", naissance: "2015-03-31" },
+                    { nom: "FORHIANI", prenom: "CHAUD", naissance: "2015-08-15" },
+                    { nom: "JAVINAR", prenom: "MALAK", naissance: "2009-09-18" },
+                    { nom: "KHERRAF", prenom: "OTHMANE", naissance: "2009-04-01" },
+                    { nom: "LAMRINI", prenom: "RAYANE", naissance: "2015-04-07" },
+                    { nom: "LENOUCHI", prenom: "MFO RIYAD", naissance: "2014-07-01" },
+                    { nom: "LENOUCHI", prenom: "SAMI", naissance: "2016-11-02" },
+                    { nom: "MADHI", prenom: "NIZAR", naissance: "2011-04-01" },
+                    { nom: "MAMI", prenom: "EL MEHDI", naissance: "2013-09-21" },
+                    { nom: "MAMI", prenom: "RITAJ", naissance: "2014-03-06" },
+                    { nom: "METHOUM", prenom: "WRADA", naissance: "2014-11-27" },
+                    { nom: "MOKBIL", prenom: "WIJANA", naissance: "2013-06-20" },
+                    { nom: "MOKBIL", prenom: "MOHAMED", naissance: "2010-09-06" },
+                    { nom: "NASSOUI", prenom: "ADAM", naissance: "2015-01-31" },
+                    { nom: "NASSOUI", prenom: "MARANE", naissance: "2015-03-31" },
+                    { nom: "OUTACHNIF", prenom: "BAYANE", naissance: "2015-03-09" },
+                    { nom: "QDRACHE", prenom: "MEO ALI", naissance: "2011-10-10" },
+                    { nom: "QDRACHE", prenom: "YOUSRA", naissance: "2014-09-06" },
+                    { nom: "ROSSAN", prenom: "LIUA", naissance: "2014-04-06" },
+                    { nom: "SAIJA", prenom: "OQUINA", naissance: "2013-01-01" },
+                    { nom: "SEKCOUR", prenom: "MARWA", naissance: "2013-03-06" },
+                    { nom: "SIDRI", prenom: "ISLAM", naissance: "2011-05-11" },
+                    { nom: "SIDRI", prenom: "KUKDIA", naissance: "2016-12-27" },
+                    { nom: "SIDRI", prenom: "IMRANE", naissance: "2013-04-03" }
+                ]
+            },
+            precompetition: {
+                nom: "Précompétition",
+                responsable: "NASINE",
+                horaires: "Lundi à Jeudi - Groupe 1: 19h30-20h55, Groupe 2: 20h50-21h55",
+                nageurs: [
+                    { nom: "AFSANI", prenom: "JIMBANE", naissance: "2016-10-27", groupe: "2" },
+                    { nom: "BAGASS", prenom: "ADRAN", naissance: "2014-04-22", groupe: "2" },
+                    { nom: "BENDRANA", prenom: "NESSINNE", naissance: "", groupe: "2" },
+                    { nom: "BOUTMIR", prenom: "MED TYAD", naissance: "2017-02-12", groupe: "1" },
+                    { nom: "DIB", prenom: "RIM", naissance: "2019-07-11", groupe: "1" },
+                    { nom: "DIB", prenom: "TOUSSEE", naissance: "2015-08-15", groupe: "1" },
+                    { nom: "MODISSI", prenom: "SALMAN", naissance: "2014-05-26", groupe: "2" },
+                    { nom: "EL CADI", prenom: "REDA", naissance: "2013-12-14", groupe: "2" },
+                    { nom: "EL GHABRI", prenom: "ALI", naissance: "2011-11-11", groupe: "2" },
+                    { nom: "EL GHABRI", prenom: "YASSINNE", naissance: "2014-06-09", groupe: "2" },
+                    { nom: "EL HADMI", prenom: "AMIN", naissance: "2018-02-24", groupe: "1" },
+                    { nom: "FALAKI", prenom: "MED AMINE", naissance: "2012-12-18", groupe: "2" },
+                    { nom: "FALAKI", prenom: "MARYMA", naissance: "2009-04-20", groupe: "2" },
+                    { nom: "JOUA", prenom: "LILIA", naissance: "2011-12-24", groupe: "2" },
+                    { nom: "JOUA", prenom: "LILIA", naissance: "2018-02-12", groupe: "1" },
+                    { nom: "KALAMI", prenom: "HATTAM", naissance: "2015-05-22", groupe: "2" },
+                    { nom: "LAMINNI", prenom: "JAD", naissance: "2017-07-22", groupe: "1" },
+                    { nom: "LOUMATINE", prenom: "INAS", naissance: "2014-06-03", groupe: "2" },
+                    { nom: "SORONA", prenom: "MALAK", naissance: "2013-08-26", groupe: "2" },
+                    { nom: "SIMHA", prenom: "KACEM AMINE", naissance: "2012-01-30", groupe: "2" },
+                    { nom: "SIMHA", prenom: "SALMANE JAD", naissance: "", groupe: "1" },
+                    { nom: "NAZIH", prenom: "LLATTI", naissance: "", groupe: "1" },
+                    { nom: "NAZIH", prenom: "ZAYD", naissance: "", groupe: "1" },
+                    { nom: "FEHAN", prenom: "ADAM", naissance: "", groupe: "1" },
+                    { nom: "OUTALIE", prenom: "RAYAN", naissance: "", groupe: "1" },
+                    { nom: "OUTALIE", prenom: "SOKAYA", naissance: "", groupe: "1" }
+                ]
+            },
+            ecole2: {
+                nom: "École Natation Groupe 2",
+                responsable: "MR AYOUB SABER",
+                horaires: "Lundi, Mercredi et Jeudi",
+                nageurs: [
+                    { nom: "BASRAOUI", prenom: "SOPHIA", naissance: "2016-05-20", groupe: "2" },
+                    { nom: "BASRAOUI", prenom: "ISRAA", naissance: "2011-12-18", groupe: "2" },
+                    { nom: "BENAYADE", prenom: "BARAE", naissance: "2015-08-03", groupe: "2" },
+                    { nom: "ATT LARCINE", prenom: "BILL", naissance: "", groupe: "" },
+                    { nom: "IREAL", prenom: "RITAL", naissance: "2014-12-15", groupe: "2" },
+                    { nom: "MOUS-ADD", prenom: "ALAA", naissance: "2013-12-18", groupe: "2" },
+                    { nom: "MOUS-ADD", prenom: "YASSER", naissance: "2017-08-18", groupe: "2" },
+                    { nom: "NASCON", prenom: "YAKOUT", naissance: "", groupe: "" },
+                    { nom: "SOUBTI", prenom: "KAMUI", naissance: "", groupe: "" },
+                    { nom: "SOUBTI", prenom: "ADAM", naissance: "", groupe: "" },
+                    { nom: "DHUSSI", prenom: "ZINEE", naissance: "", groupe: "" },
+                    { nom: "MOUSZAL", prenom: "SABA", naissance: "", groupe: "" },
+                    { nom: "BENDIANA", prenom: "SOUKAINA", naissance: "", groupe: "" },
+                    { nom: "KITOUSS", prenom: "ALAA", naissance: "", groupe: "" },
+                    { nom: "BOUZALO", prenom: "OSHA", naissance: "2010-11-23", groupe: "2" },
+                    { nom: "BOUZALO", prenom: "NOUR", naissance: "2015-09-05", groupe: "2" }
+                ]
+            },
+            ecole3: {
+                nom: "École Natation Groupe 3",
+                responsable: "Non spécifié",
+                horaires: "Mardi et Vendredi",
+                nageurs: [
+                    { nom: "AJAAJ", prenom: "SOUHAIR", naissance: "2012-04-04", groupe: "3" },
+                    { nom: "BARGHOUT", prenom: "SAJA", naissance: "2016-05-28", groupe: "3" },
+                    { nom: "BARGHOUT CHARNIQUE", prenom: "YAMINE", naissance: "2019-12-17", groupe: "3" },
+                    { nom: "EI BICHRI", prenom: "RAHMA", naissance: "2020-01-16", groupe: "3" },
+                    { nom: "EI FABI", prenom: "LINA", naissance: "2020-07-13", groupe: "3" },
+                    { nom: "HATTAS", prenom: "AFOLA", naissance: "2021-09-27", groupe: "3" },
+                    { nom: "KABLAOUI", prenom: "MED TATAK", naissance: "2012-04-06", groupe: "3" },
+                    { nom: "KABLAOUI MOBHANI", prenom: "MED YASSINE", naissance: "2019-01-01", groupe: "3" },
+                    { nom: "MOBHANI", prenom: "GHALI", naissance: "2019-10-28", groupe: "3" },
+                    { nom: "MOBHANI", prenom: "RITAJ", naissance: "2017-07-10", groupe: "3" }
+                ]
+            }
+        };
+
+        // Variables globales
+        let currentDate = new Date().toISOString().split('T')[0]; // Date du jour par défaut
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser la date
+            document.getElementById('currentDate').value = currentDate;
+            
+            // Initialiser les groupes
+            initGroups();
+            
+            // Initialiser les événements
+            initEvents();
+            
+            // Charger les données sauvegardées
+            loadSavedData();
+        });
+
+        // Initialisation des groupes
+        function initGroups() {
+            const groupTabs = document.getElementById('groupTabs');
+            const groupsContainer = document.getElementById('groupsContainer');
+            
+            // Vider les conteneurs
+            groupTabs.innerHTML = '';
+            groupsContainer.innerHTML = '';
+            
+            // Créer les onglets et les contenus pour chaque groupe
+            let first = true;
+            for (const groupeId in groupesData) {
+                // Créer l'onglet
+                const tab = document.createElement('div');
+                tab.className = `tab ${first ? 'active' : ''}`;
+                tab.setAttribute('data-tab', groupeId);
+                tab.textContent = groupesData[groupeId].nom;
+                groupTabs.appendChild(tab);
+                
+                // Créer le contenu de l'onglet
+                const tabContent = document.createElement('div');
+                tabContent.className = `tab-content ${first ? 'active' : ''}`;
+                tabContent.id = groupeId;
+                
+                // Créer la carte du groupe
+                const groupCard = createGroupCard(groupeId, groupesData[groupeId]);
+                tabContent.appendChild(groupCard);
+                
+                groupsContainer.appendChild(tabContent);
+                
+                first = false;
+            }
+            
+            // Réinitialiser les événements des onglets
+            initTabs();
+        }
+
+        // Créer une carte de groupe
+        function createGroupCard(groupeId, groupeData) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-${groupeId}`;
+            
+            // En-tête du groupe
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'group-header';
+            
+            const groupTitle = document.createElement('h2');
+            groupTitle.className = 'group-title';
+            groupTitle.textContent = groupeData.nom;
+            
+            const groupActions = document.createElement('div');
+            groupActions.className = 'group-actions';
+            
+            const manageBtn = document.createElement('button');
+            manageBtn.className = 'btn btn-primary';
+            manageBtn.textContent = 'Gérer les nageurs';
+            manageBtn.setAttribute('data-group', groupeId);
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-warning';
+            editBtn.textContent = 'Modifier le groupe';
+            editBtn.setAttribute('data-group', groupeId);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger';
+            deleteBtn.textContent = 'Supprimer le groupe';
+            deleteBtn.setAttribute('data-group', groupeId);
+            
+            groupActions.appendChild(manageBtn);
+            groupActions.appendChild(editBtn);
+            groupActions.appendChild(deleteBtn);
+            
+            groupHeader.appendChild(groupTitle);
+            groupHeader.appendChild(groupActions);
+            
+            // Informations du groupe
+            const groupInfo = document.createElement('div');
+            groupInfo.className = 'group-info';
+            groupInfo.innerHTML = `
+                <p><strong>Responsable:</strong> ${groupeData.responsable}</p>
+                <p><strong>Horaires:</strong> ${groupeData.horaires}</p>
+                <p><strong>Date:</strong> ${formatDisplayDate(currentDate)}</p>
+            `;
+            
+            // Tableau des présences
+            const table = document.createElement('table');
+            table.id = `table-${groupeId}`;
+            
+            // En-tête du tableau
+            const thead = document.createElement('thead');
+            let headerRow = '<tr><th>Nom / Famille</th><th>Prénom</th><th>Naissance</th>';
+            
+            // Ajouter colonne groupe si nécessaire
+            if (groupeId === 'precompetition' || groupeId === 'ecole2' || groupeId === 'ecole3') {
+                headerRow += '<th>Groupe</th>';
+            }
+            
+            // Colonne de présence
+            headerRow += `<th>Présence (${formatDisplayDate(currentDate)})</th></tr>`;
+            
+            thead.innerHTML = headerRow;
+            table.appendChild(thead);
+            
+            // Corps du tableau
+            const tbody = document.createElement('tbody');
+            groupeData.nageurs.forEach((nageur, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', `${groupeId}-${index}`);
+                
+                // Colonnes de base
+                let rowContent = `
+                    <td>${nageur.nom}</td>
+                    <td>${nageur.prenom}</td>
+                    <td>${formatDate(nageur.naissance)}</td>
+                `;
+                
+                // Ajouter colonne groupe si nécessaire
+                if (groupeId === 'precompetition' || groupeId === 'ecole2' || groupeId === 'ecole3') {
+                    rowContent += `<td>${nageur.groupe || ''}</td>`;
+                }
+                
+                // Ajouter la cellule de présence
+                const presenceStatus = nageur.presences && nageur.presences[currentDate] ? nageur.presences[currentDate] : 'absent';
+                rowContent += `
+                    <td class="presence-cell">
+                        <div class="presence-display ${presenceStatus}" data-status="${presenceStatus}">
+                            ${presenceStatus === 'present' ? 'P' : presenceStatus === 'absent' ? 'A' : 'E'}
+                        </div>
+                    </td>
+                `;
+                
+                row.innerHTML = rowContent;
+                tbody.appendChild(row);
+            });
+            
+            table.appendChild(tbody);
+            
+            // Section de sauvegarde
+            const saveSection = document.createElement('div');
+            saveSection.className = 'save-section';
+            saveSection.innerHTML = `
+                <button class="btn btn-success" id="save-${groupeId}">Enregistrer les présences</button>
+            `;
+            
+            // Assembler la carte
+            card.appendChild(groupHeader);
+            card.appendChild(groupInfo);
+            card.appendChild(table);
+            card.appendChild(saveSection);
+            
+            return card;
+        }
+
+        // Initialisation des onglets
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Désactiver tous les onglets et contenus
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Activer l'onglet et le contenu sélectionnés
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+
+        // Initialisation des événements
+        function initEvents() {
+            // Événements pour les présences
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('presence-display')) {
+                    const display = e.target;
+                    const currentStatus = display.getAttribute('data-status');
+                    let newStatus;
+                    
+                    // Changer le statut: A -> P -> E -> A
+                    if (currentStatus === 'absent') {
+                        newStatus = 'present';
+                        display.textContent = 'P';
+                    } else if (currentStatus === 'present') {
+                        newStatus = 'excused';
+                        display.textContent = 'E';
+                    } else {
+                        newStatus = 'absent';
+                        display.textContent = 'A';
+                    }
+                    
+                    display.setAttribute('data-status', newStatus);
+                    display.className = `presence-display ${newStatus}`;
+                }
+            });
+            
+            // Événement pour le bouton Appliquer la date
+            document.getElementById('applyDateBtn').addEventListener('click', function() {
+                currentDate = document.getElementById('currentDate').value;
+                initGroups();
+                applySavedPresence();
+                showNotification(`Date changée pour le ${formatDisplayDate(currentDate)}`, 'success');
+            });
+            
+            // Événement pour le bouton Ajouter un Groupe
+            document.getElementById('addGroupBtn').addEventListener('click', function() {
+                openGroupModal();
+            });
+            
+            // Événement pour le bouton Imprimer
+            document.getElementById('printBtn').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Événement pour la recherche
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterTable(this.value);
+            });
+            
+            // Événement pour effacer la recherche
+            document.getElementById('clearSearch').addEventListener('click', function() {
+                document.getElementById('searchInput').value = '';
+                filterTable('');
+            });
+            
+            // Événements pour les boutons de gestion des groupes
+            document.addEventListener('click', function(e) {
+                if (e.target.textContent === 'Gérer les nageurs') {
+                    const groupId = e.target.getAttribute('data-group');
+                    openManageSwimmersModal(groupId);
+                } else if (e.target.textContent === 'Modifier le groupe') {
+                    const groupId = e.target.getAttribute('data-group');
+                    openGroupModal(groupId);
+                } else if (e.target.textContent === 'Supprimer le groupe') {
+                    const groupId = e.target.getAttribute('data-group');
+                    deleteGroup(groupId);
+                } else if (e.target.textContent === 'Enregistrer les présences') {
+                    const groupId = e.target.id.replace('save-', '');
+                    saveGroupPresences(groupId);
+                }
+            });
+            
+            // Événements pour les modals
+            initModalEvents();
+        }
+
+        // Sauvegarder les présences d'un groupe
+        function saveGroupPresences(groupId) {
+            const table = document.getElementById(`table-${groupId}`);
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach((row, index) => {
+                if (!groupesData[groupId].nageurs[index]) return;
+                
+                // Initialiser l'objet presences s'il n'existe pas
+                if (!groupesData[groupId].nageurs[index].presences) {
+                    groupesData[groupId].nageurs[index].presences = {};
+                }
+                
+                // Récupérer le statut de présence
+                const presenceCell = row.querySelector('.presence-display');
+                if (presenceCell) {
+                    groupesData[groupId].nageurs[index].presences[currentDate] = presenceCell.getAttribute('data-status');
+                }
+            });
+            
+            // Sauvegarder dans le localStorage
+            saveData();
+            showNotification(`Présences enregistrées pour le ${formatDisplayDate(currentDate)}`, 'success');
+        }
+
+        // Initialisation des événements des modals
+        function initModalEvents() {
+            const groupModal = document.getElementById('groupModal');
+            const swimmerModal = document.getElementById('swimmerModal');
+            const manageModal = document.getElementById('manageSwimmersModal');
+            
+            const closeBtns = document.querySelectorAll('.close');
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    groupModal.style.display = 'none';
+                    swimmerModal.style.display = 'none';
+                    manageModal.style.display = 'none';
+                });
+            });
+            
+            document.getElementById('cancelGroupBtn').addEventListener('click', function() {
+                groupModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelSwimmerBtn').addEventListener('click', function() {
+                swimmerModal.style.display = 'none';
+            });
+            
+            document.getElementById('closeManageBtn').addEventListener('click', function() {
+                manageModal.style.display = 'none';
+            });
+            
+            document.getElementById('addSwimmerToGroupBtn').addEventListener('click', function() {
+                const groupId = document.getElementById('manageSwimmersModal').getAttribute('data-current-group');
+                openSwimmerModal(groupId);
+            });
+            
+            window.addEventListener('click', function(e) {
+                if (e.target === groupModal) {
+                    groupModal.style.display = 'none';
+                }
+                if (e.target === swimmerModal) {
+                    swimmerModal.style.display = 'none';
+                }
+                if (e.target === manageModal) {
+                    manageModal.style.display = 'none';
+                }
+            });
+            
+            // Formulaire d'ajout de groupe
+            document.getElementById('groupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveGroup();
+            });
+            
+            // Formulaire d'ajout de nageur
+            document.getElementById('swimmerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveSwimmer();
+            });
+        }
+
+        // Ouvrir la modal d'ajout/modification de groupe
+        function openGroupModal(groupId = null) {
+            const modal = document.getElementById('groupModal');
+            const title = document.getElementById('modalGroupTitle');
+            const form = document.getElementById('groupForm');
+            
+            if (groupId) {
+                // Mode modification
+                title.textContent = `Modifier le groupe: ${groupesData[groupId].nom}`;
+                document.getElementById('groupName').value = groupesData[groupId].nom;
+                document.getElementById('groupResponsable').value = groupesData[groupId].responsable;
+                document.getElementById('groupSchedule').value = groupesData[groupId].horaires;
+                document.getElementById('groupDescription').value = groupesData[groupId].description || '';
+                
+                form.setAttribute('data-edit-group', groupId);
+            } else {
+                // Mode ajout
+                title.textContent = 'Ajouter un nouveau groupe';
+                form.reset();
+                form.removeAttribute('data-edit-group');
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Ouvrir la modal de gestion des nageurs
+        function openManageSwimmersModal(groupId) {
+            const modal = document.getElementById('manageSwimmersModal');
+            const title = document.getElementById('modalManageTitle');
+            const swimmerList = document.getElementById('swimmerList');
+            
+            title.textContent = `Gérer les nageurs: ${groupesData[groupId].nom}`;
+            modal.setAttribute('data-current-group', groupId);
+            
+            // Remplir la liste des nageurs
+            swimmerList.innerHTML = '';
+            
+            groupesData[groupId].nageurs.forEach((nageur, index) => {
+                const item = document.createElement('div');
+                item.className = 'swimmer-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${nageur.nom} ${nageur.prenom}</strong>
+                        ${nageur.naissance ? `<br><small>Né le: ${formatDate(nageur.naissance)}</small>` : ''}
+                        ${nageur.groupe ? `<br><small>Groupe: ${nageur.groupe}</small>` : ''}
+                    </div>
+                    <div class="swimmer-actions">
+                        <button class="btn btn-warning btn-small edit-swimmer" data-group="${groupId}" data-index="${index}">Modifier</button>
+                        <button class="btn btn-danger btn-small delete-swimmer" data-group="${groupId}" data-index="${index}">Supprimer</button>
+                    </div>
+                `;
+                swimmerList.appendChild(item);
+            });
+            
+            // Ajouter les événements pour les boutons d'édition et suppression
+            document.querySelectorAll('.edit-swimmer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const groupId = this.getAttribute('data-group');
+                    const index = this.getAttribute('data-index');
+                    openSwimmerModal(groupId, index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-swimmer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const groupId = this.getAttribute('data-group');
+                    const index = this.getAttribute('data-index');
+                    deleteSwimmer(groupId, index);
+                });
+            });
+            
+            modal.style.display = 'flex';
+        }
+
+        // Ouvrir la modal d'ajout/modification de nageur
+        function openSwimmerModal(groupId, index = null) {
+            const modal = document.getElementById('swimmerModal');
+            const title = document.getElementById('modalSwimmerTitle');
+            const form = document.getElementById('swimmerForm');
+            const groupeSelect = document.getElementById('groupe');
+            
+            // Remplir le sélecteur de groupe
+            groupeSelect.innerHTML = '';
+            for (const id in groupesData) {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = groupesData[id].nom;
+                if (id === groupId) option.selected = true;
+                groupeSelect.appendChild(option);
+            }
+            
+            if (index !== null) {
+                // Mode modification
+                const nageur = groupesData[groupId].nageurs[index];
+                title.textContent = `Modifier le nageur: ${nageur.nom} ${nageur.prenom}`;
+                document.getElementById('nomFamille').value = nageur.nom;
+                document.getElementById('prenom').value = nageur.prenom;
+                document.getElementById('naissance').value = nageur.naissance;
+                
+                form.setAttribute('data-edit-group', groupId);
+                form.setAttribute('data-edit-index', index);
+            } else {
+                // Mode ajout
+                title.textContent = 'Ajouter un nageur';
+                form.reset();
+                form.removeAttribute('data-edit-group');
+                form.removeAttribute('data-edit-index');
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Sauvegarder un groupe
+        function saveGroup() {
+            const form = document.getElementById('groupForm');
+            const name = document.getElementById('groupName').value;
+            const responsable = document.getElementById('groupResponsable').value;
+            const horaires = document.getElementById('groupSchedule').value;
+            const description = document.getElementById('groupDescription').value;
+            
+            const editGroupId = form.getAttribute('data-edit-group');
+            
+            if (editGroupId) {
+                // Modification d'un groupe existant
+                groupesData[editGroupId].nom = name;
+                groupesData[editGroupId].responsable = responsable;
+                groupesData[editGroupId].horaires = horaires;
+                groupesData[editGroupId].description = description;
+                
+                showNotification('Groupe modifié avec succès!', 'success');
+            } else {
+                // Ajout d'un nouveau groupe
+                const newId = 'groupe' + (Object.keys(groupesData).length + 1);
+                groupesData[newId] = {
+                    nom: name,
+                    responsable: responsable,
+                    horaires: horaires,
+                    description: description,
+                    nageurs: []
+                };
+                
+                showNotification('Groupe ajouté avec succès!', 'success');
+            }
+            
+            // Réinitialiser l'interface
+            initGroups();
+            document.getElementById('groupModal').style.display = 'none';
+            saveData();
+        }
+
+        // Sauvegarder un nageur
+        function saveSwimmer() {
+            const form = document.getElementById('swimmerForm');
+            const nom = document.getElementById('nomFamille').value;
+            const prenom = document.getElementById('prenom').value;
+            const naissance = document.getElementById('naissance').value;
+            const groupeId = document.getElementById('groupe').value;
+            
+            const editGroupId = form.getAttribute('data-edit-group');
+            const editIndex = form.getAttribute('data-edit-index');
+            
+            const nageurData = {
+                nom: nom,
+                prenom: prenom,
+                naissance: naissance
+            };
+            
+            // Ajouter le groupe si nécessaire
+            if (groupeId === 'precompetition' || groupeId === 'ecole2' || groupeId === 'ecole3') {
+                nageurData.groupe = document.getElementById('groupe').value.replace('groupe', '');
+            }
+            
+            if (editGroupId !== null && editIndex !== null) {
+                // Modification d'un nageur existant
+                // Conserver les présences existantes
+                if (groupesData[editGroupId].nageurs[editIndex].presences) {
+                    nageurData.presences = groupesData[editGroupId].nageurs[editIndex].presences;
+                }
+                groupesData[editGroupId].nageurs[editIndex] = nageurData;
+                showNotification('Nageur modifié avec succès!', 'success');
+            } else {
+                // Ajout d'un nouveau nageur
+                groupesData[groupeId].nageurs.push(nageurData);
+                showNotification('Nageur ajouté avec succès!', 'success');
+            }
+            
+            // Réinitialiser l'interface
+            initGroups();
+            document.getElementById('swimmerModal').style.display = 'none';
+            
+            // Recharger la modal de gestion si elle est ouverte
+            const manageModal = document.getElementById('manageSwimmersModal');
+            if (manageModal.style.display === 'flex') {
+                const currentGroup = manageModal.getAttribute('data-current-group');
+                openManageSwimmersModal(currentGroup);
+            }
+            
+            saveData();
+        }
+
+        // Supprimer un groupe
+        function deleteGroup(groupId) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le groupe "${groupesData[groupId].nom}" ?`)) {
+                delete groupesData[groupId];
+                initGroups();
+                showNotification('Groupe supprimé avec succès!', 'success');
+                saveData();
+            }
+        }
+
+        // Supprimer un nageur
+        function deleteSwimmer(groupId, index) {
+            const nageur = groupesData[groupId].nageurs[index];
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le nageur "${nageur.nom} ${nageur.prenom}" ?`)) {
+                groupesData[groupId].nageurs.splice(index, 1);
+                
+                // Recharger l'interface
+                initGroups();
+                
+                // Recharger la modal de gestion
+                const manageModal = document.getElementById('manageSwimmersModal');
+                if (manageModal.style.display === 'flex') {
+                    openManageSwimmersModal(groupId);
+                }
+                
+                showNotification('Nageur supprimé avec succès!', 'success');
+                saveData();
+            }
+        }
+
+        // Filtrer le tableau en fonction de la recherche
+        function filterTable(searchTerm) {
+            const activeTab = document.querySelector('.tab-content.active');
+            const table = activeTab.querySelector('table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Formater la date
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        // Formater la date pour l'affichage
+        function formatDisplayDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Sauvegarder les données
+        function saveData() {
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('presenceData', JSON.stringify(groupesData));
+        }
+
+        // Charger les données sauvegardées
+        function loadSavedData() {
+            const savedData = localStorage.getItem('presenceData');
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Fusionner avec les données existantes
+                for (const groupeId in data) {
+                    if (groupesData[groupeId]) {
+                        // Mettre à jour les nageurs existants
+                        data[groupeId].nageurs.forEach((savedNageur, index) => {
+                            if (groupesData[groupeId].nageurs[index]) {
+                                // Conserver les données de présence sauvegardées
+                                if (savedNageur.presences) {
+                                    groupesData[groupeId].nageurs[index].presences = savedNageur.presences;
+                                }
+                            }
+                        });
+                    } else {
+                        // Ajouter les nouveaux groupes
+                        groupesData[groupeId] = data[groupeId];
+                    }
+                }
+                
+                // Réinitialiser l'interface avec les données chargées
+                initGroups();
+                applySavedPresence();
+                
+                showNotification('Données chargées avec succès!', 'success');
+            }
+        }
+
+        // Appliquer les présences sauvegardées
+        function applySavedPresence() {
+            for (const groupeId in groupesData) {
+                const table = document.getElementById(`table-${groupeId}`);
+                if (!table) continue;
+                
+                const rows = table.querySelectorAll('tbody tr');
+                
+                rows.forEach((row, index) => {
+                    const nageur = groupesData[groupeId].nageurs[index];
+                    if (!nageur || !nageur.presences) return;
+                    
+                    // Appliquer les présences sauvegardées pour la date courante
+                    const presenceStatus = nageur.presences[currentDate] || 'absent';
+                    const display = row.querySelector('.presence-display');
+                    if (display) {
+                        display.setAttribute('data-status', presenceStatus);
+                        display.className = `presence-display ${presenceStatus}`;
+                        display.textContent = presenceStatus === 'present' ? 'P' : 
+                                            presenceStatus === 'absent' ? 'A' : 'E';
+                    }
+                });
+            }
+        }
+
+        // Afficher une notification
+        function showNotification(message, type) {
+            // Créer l'élément de notification
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Style de la notification
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background-color: ${type === 'success' ? '#2ecc71' : '#e74c3c'};
+                color: white;
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                transition: all 0.3s ease;
+            `;
+            
+            // Ajouter au document
+            document.body.appendChild(notification);
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
